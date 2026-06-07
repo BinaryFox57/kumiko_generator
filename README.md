@@ -1,107 +1,27 @@
-# Kumiko Generator & Dashboard
+# Kumiko Generator
 
-This project is an enhanced fork of the original [hampusudd/kumiko_generator](https://github.com/hampusudd/kumiko_generator). While the core engine processes images into stunning **Kumiko-style geometric SVG panels**, this fork introduces a **modern, fully-containerized Web Dashboard** to configure, preview, and download your designs instantly without touching the command line.
+A modern and fluid web interface to transform your images into beautiful Kumiko patterns (traditional Japanese woodworking styles using geometric triangles and hexagons). This project is highly optimized to prepare models for 3D printing or laser cutting.
 
-The generated SVG outputs are perfectly optimized for **3D printing (such as MakerWorld/Bambu Lab grids), CNC, or laser cutting**.
+## Features
 
----
+- 1/3 - 2/3 Studio Layout: Fixed settings panel on the left, and a dynamic high-definition SVG live preview on the right.
+- Unified Drag and Drop Zone: Drop your image anywhere in the box to load it instantly. No redundant clicks or double uploads.
+- Force Grid Size (Auto-Crop): A crucial option for 3D printing. Automatically crops your image from the center to strictly respect your requested dimensions (e.g., 14x14) without distorting the geometric pattern.
+- Native Multilingual Support: Instant on-the-fly toggling between French, English, and German.
+- Built-in Security: Strict MIME-type checking on uploads to completely block any malicious scripts or execution attempts.
+- Auto-Cleanup: An automatic internal routine that securely purges input images and rendered files older than 7 days.
 
-## New Features in this Fork
+## Quick Start and Installation (Docker)
 
-* **Web UI Dashboard:** A dark-themed, sleek interface to upload images and tweak parameters on the fly.
-* **Live High-Definition Preview & Spinner:** Inspect your generated Kumiko pattern matrix directly in your browser with a smooth loading animation.
-* **Dynamic Configuration:** Adjust grid dimensions, orientation, and colors visually using native color pickers.
-* **Multi-language Support (i18n):** Fully translated into **English**, **Français**, and **Deutsch** with an easy-to-extend JSON translation file.
-* **One-Click Download:** Dedicated route to grab your ready-to-fabricate SVG panels.
-* **Smart Storage Management:** Integrated automatic cleanup that purges temp files older than 7 days to keep your server lean.
-* **Production Ready:** Fully Dockerized and easily deployable behind reverse proxies like **Nginx Proxy Manager**.
-
----
-
-## Quick Start with Docker Compose
-
-No need to struggle with local Python environments or missing system libraries. Everything is packaged into a lightweight Docker container.
-
-### 1. Run the Application
-Clone this repository, navigate to the folder, and fire it up:
-
-```
+The project is fully containerized. To spin it up on your local machine or seedbox, ensure you have Docker and Docker Compose installed, then run your build command:
 docker compose up -d --build
-```
 
-### 2. Accessing the Dashboard
-By default, the web interface will be exposed on port . Open your browser and navigate to:
- (or )
-
----
-
-## Production Deployment (Nginx Proxy Manager)
-
-If you want to secure your dashboard behind a domain name with HTTPS via **Nginx Proxy Manager**, it is highly recommended to isolate the container ports and attach it to your proxy network.
-
-
-```
-version: '3.8'
-
-services:
-  kumiko_app:
-    ports: []
-    networks:
-      - your_proxy_network
-
-networks:
-  your_proxy_network:
-    external: true
-```
-
-Inside Nginx Proxy Manager, configure your Proxy Host with:
-* **Forward Hostname/IP:** 
-* **Forward Port:**  *(Internal FastAPI port)*
-
----
-
-## Dashboard Settings Explained
-
-### Grid Resolution (Width & Height)
-Controls both the grid density and panel aspect ratio.
-* *Note on Geometry:* Kumiko triangles are naturally wider than they are tall. To prevent visual stretching, adjust your grid dimensions (Columns x Rows) to roughly match the aspect ratio of your source image.
-
-### Hexagon Orientation
-Toggle between **Pointy** (vertices pointing up) and **Flat** (flat edges on top) arrangements to match your physical 3D-printed backing grids.
-
-### Prominent Colors Amount
-Controls how many dominant colors the algorithm extracts from your picture.
-* **Tip:** 5 colors are highly recommended for optimal results (usually 4 filament colors + 1 background color).
-
-### Filament & Background Customization
-* **Background Color:** Sets the canvas color behind the inserts.
-* **Border Color:** Matches the structural grid filament you plan to use for printing the outlines.
-* **Exclude Background:** If set to *Yes*, the generator skips creating intricate patterns in solid background areas, saving you tons of printing time and filament.
-
----
+The application will be accessible on the port configured in your docker-compose.yml file (defaulting to port 8000 or routed via your reverse proxy).
 
 ## Project Structure
 
-```
-.
-├── main_api.py             # Tailored execution script for the Web UI
-├── web_app.py              # FastAPI Backend server & cleanup routine
-├── templates/
-│   └── index.html          # Responsive, multilingual Frontend dashboard with CSS spinner
-├── translations.json       # i18n Dictionary (EN / FR / DE)
-├── docker-compose.yml      # Docker stack configuration
-├── Dockerfile              # Isolated environment definition
-├── main.py                 # Original CLI entry point
-├── config.py               # Legacy configuration file
-├── geometry/               # Grid generation & mapping mechanics
-├── image/                  # Sampling & color extraction core
-└── rendering/              # SVG compilation layer
-```
-
----
-
-## Credits & License
-
-* **Original Algorithm:** Kudos to [hampusudd](https://github.com/hampusudd) for the brilliant feature-based pattern classification logic.
-* **Modifications & Web Stack:** Remastered by Séb.
-* **License:** This project is open-source and licensed under the MIT License.
+- web_app.py: FastAPI backend server handling routing, security, PIL image auto-cropping, and cron cleanup.
+- templates/index.html: Fully responsive frontend dashboard with advanced Drag and Drop and a built-in i18n translation dictionary.
+- main_api.py: Core mathematical script generating the vector Kumiko wireframes.
+- input_images/: Temporary storage for uploaded source images (purged every 7 days).
+- output_svg/: Temporary storage for generated SVG blueprints (purged every 7 days).
