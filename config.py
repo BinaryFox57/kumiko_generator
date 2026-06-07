@@ -43,9 +43,9 @@ PROMINENT_COLOR_AMOUNT = 5
 
 # You'll have to estimate the size of the actual print yourself by counting triangles and measuring what your triangle
 # size would be with your own prints.
-GRID_WIDTH = 30
-GRID_HEIGHT = 30
+GRID_WIDTH = 5
+GRID_HEIGHT = 5
 
 # This is the path to the input file you want to use. PNG should have full support, and I cannot promise other formats
 # will work.
-FILE_PATH = "saturn.png"
+FILE_PATH = "input.png"

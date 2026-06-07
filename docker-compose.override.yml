@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   kumiko_app:
     # On retire l'exposition du port sur ta machine

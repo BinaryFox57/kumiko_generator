@@ -1,8 +1,22 @@
-__pycache__/
-*.pyc
-.venv/
+# Dossiers de l'application (images temporaires et rendus)
 input_images/
 output_svg/
+
+# Environnement local virtuel Python
+venv/
+
+# Images de test locales
+saturn.png
+
+# Configuration proxy locale (Nginx Proxy Manager)
 docker-compose.override.yml
+
+# Caches Python et Docker
+__pycache__/
+*.pyc
+.pytest_cache/
+.dockerignore
+
+# Fichiers système
 .DS_Store
 Thumbs.db

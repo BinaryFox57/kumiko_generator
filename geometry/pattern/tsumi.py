@@ -5,6 +5,9 @@ from geometry.primitives import Line, Arc, QuadraticBezier
 
 
 class TsumiPattern(Pattern):
+    def get_material_cost(self) -> float:
+        return 2.5
+
     def _get_geometry(self, a, b, c) -> List[Union[Line, Arc, QuadraticBezier]]:
         ax, ay = a
         bx, by = b
