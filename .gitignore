@@ -1,22 +1,25 @@
-# Dossiers de l'application (images temporaires et rendus)
+# Environnements virtuels
+venv/
+.venv/
+ENV/
+env/
+
+# Fichiers de configuration locale (Docker)
+docker-compose.override.yml
+
+# Dossiers d'images et rendus (vides ou pleins)
 input_images/
 output_svg/
 
-# Environnement local virtuel Python
-venv/
+# Images de test spécifiques
+*.png
+*.jpg
+*.jpeg
+*.svg
 
-# Images de test locales
-saturn.png
-
-# Configuration proxy locale (Nginx Proxy Manager)
-docker-compose.override.yml
-
-# Caches Python et Docker
+# Caches Python et OS
 __pycache__/
 *.pyc
-.pytest_cache/
-.dockerignore
-
-# Fichiers système
 .DS_Store
-Thumbs.db
+.idea/
+.vscode/
