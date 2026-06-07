@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.title }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e24; color: #fff; margin: 0; padding: 20px; }
+        .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; }
+        .sidebar { width: 350px; background: #2a2a35; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); height: fit-content; }
+        .preview-area { flex: 1; background: #111; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 500px; border: 2px dashed #444; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; color: #bbb; font-size: 13px; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; background: #3a3a4a; border: 1px solid #555; color: #fff; border-radius: 4px; }
+        input[type="color"] { height: 35px; padding: 2px; }
+        .row { display: flex; gap: 10px; }
+        .row > div { flex: 1; }
+        button { width: 100%; padding: 12px; background: #ff5500; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; transition: background 0.2s; }
+        button:hover { background: #e04e00; }
+        
+        /* Conteneur du chargement avec alignement */
+        #loading { display: none; margin-top: 20px; text-align: center; }
+        .loading-text { color: #ff5500; font-weight: bold; margin-top: 10px; font-size: 14px; }
+        
+        /* 🌀 LA ROUE QUI TOURNE (SPINNER CSS) */
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 85, 0, 0.1);
+            border-left-color: #ff5500;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .svg-container { width: 100%; text-align: center; overflow: auto; }
+        svg { max-width: 100%; height: auto; }
+        #downloadBtn { display: none; background: #0088cc; max-width: 300px; margin-top: 20px; text-decoration: none; text-align: center; padding: 12px 20px; border-radius: 4px; font-weight: bold; color: white; }
+        #downloadBtn:hover { background: #006699; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; max-width: 1400px; margin: 0 auto 20px auto; }
+        .lang-switch { background: #3a3a4a; border: 1px solid #555; color: white; padding: 5px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <h1 style="color: #ff5500; margin: 0;">{{ t.title }}</h1>
+        <div>
+            <label for="lang" style="display:inline; margin-right: 5px;">{{ t.lang_select }}</label>
+            <select id="lang" class="lang-switch" onchange="window.location.href='/?lang='+this.value">
+                <option value="fr" {% if current_lang == 'fr' %}selected{% endif %}>Français</option>
+                <option value="en" {% if current_lang == 'en' %}selected{% endif %}>English</option>
+                <option value="de" {% if current_lang == 'de' %}selected{% endif %}>Deutsch</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="file">{{ t.select_image }}</label>
+                    <input type="file" id="file" name="file" accept="image/*" required>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label for="grid_width">{{ t.width }}</label>
+                        <input type="number" id="grid_width" name="grid_width" value="32" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="grid_height">{{ t.height }}</label>
+                        <input type="number" id="grid_height" name="grid_height" value="14" min="1">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="orientation">{{ t.orientation }}</label>
+                    <select id="orientation" name="orientation">
+                        <option value="pointy">{{ t.pointy }}</option>
+                        <option value="flat">{{ t.flat }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="color_amount">{{ t.colors }} <span style="color:#ffcc00; font-weight:normal; font-size:11px;">{{ t.colors_hint }}</span></label>
+                    <input type="number" id="color_amount" name="color_amount" value="5" min="2" max="15">
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label for="background_color">{{ t.bg_color }}</label>
+                        <input type="color" id="background_color" name="background_color" value="#000000">
+                    </div>
+                    <div class="form-group">
+                        <label for="border_color">{{ t.border_color }}</label>
+                        <input type="color" id="border_color" name="border_color" value="#683e07">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="exclude_background">{{ t.exclude_bg }}</label>
+                    <select id="exclude_background" name="exclude_background">
+                        <option value="false">{{ t.exclude_no }}</option>
+                        <option value="true">{{ t.exclude_yes }}</option>
+                    </select>
+                </div>
+
+                <button type="submit">{{ t.generate_btn }}</button>
+            </form>
+            
+            <div id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">{{ t.loading }}</div>
+            </div>
+        </div>
+
+        <div class="preview-area" id="previewArea">
+            <p style="color: #666;" id="placeholderText">{{ t.placeholder }}</p>
+            <div class="svg-container" id="svgContainer"></div>
+            <a id="downloadBtn" href="#" download>{{ t.download }}</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const loading = document.getElementById('loading');
+            const placeholder = document.getElementById('placeholderText');
+            const svgContainer = document.getElementById('svgContainer');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            loading.style.display = 'block';
+            placeholder.style.display = 'block';
+            placeholder.innerHTML = `<span style="color: #ff5500;">⏳ Generation in progress...</span>`;
+            svgContainer.innerHTML = '';
+            downloadBtn.style.display = 'none';
+
+            try {
+                const response = await fetch('/generate', { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                if (result.success) {
+                    placeholder.style.display = 'none';
+                    const svgResponse = await fetch(result.file_url);
+                    const svgText = await svgResponse.text();
+                    svgContainer.innerHTML = svgText;
+                    downloadBtn.href = result.file_url;
+                    downloadBtn.download = result.file_url.split('/').pop();
+                    downloadBtn.style.display = 'inline-block';
+                } else {
+                    placeholder.innerHTML = `<p style="color: red;">Erreur: ${result.details || result.error}</p>`;
+                }
+            } catch (error) {
+                placeholder.innerHTML = '<p style="color: red;">Erreur réseau.</p>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
