@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  kumiko_app:
+    # On retire l'exposition du port sur ta machine
+    ports: !reset []
+    # On le remet sur ton réseau privé seedbox
+    networks:
+      - seedbox_default
+
+networks:
+  seedbox_default:
+    external: true
+
