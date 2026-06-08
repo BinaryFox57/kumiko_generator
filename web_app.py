@@ -5,7 +5,6 @@ from PIL import Image
 import os
 import subprocess
 import time
-import json
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -43,29 +42,25 @@ async def generate_kumiko(
     colors: int = Form(5),
     exclude_background: str = Form("no")
 ):
-    # Sécurité anti-hack : on vérifie que c'est bien une image
     if not file.content_type.startswith("image/"):
         return {"success": False, "error": "Seules les images sont autorisées."}
 
-    # Nettoyage automatique des vieux fichiers
     cleanup_old_files(UPLOAD_DIR)
     cleanup_old_files(OUTPUT_DIR)
 
-    # Création des noms de fichiers uniques
     timestamp = int(time.time())
     base_name, _ = os.path.splitext(file.filename)
-    base_name = base_name.replace(" ", "_") # Évite les bugs de ligne de commande avec les espaces
+    base_name = base_name.replace(" ", "_")
+    
     input_filename = f"{base_name}_{timestamp}.png"
     input_path = os.path.join(UPLOAD_DIR, input_filename)
 
     output_filename = f"{base_name}_{timestamp}.svg"
     output_path = os.path.join(OUTPUT_DIR, output_filename)
 
-    # Sauvegarde du fichier uploadé
     with open(input_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    # Option de recadrage intelligent (Force Crop)
     if force_crop:
         try:
             with Image.open(input_path) as img:
@@ -81,26 +76,39 @@ async def generate_kumiko(
                     new_h = int(img_w / target_ratio)
                     top = (img_h - new_h) / 2
                     img = img.crop((0, top, img_w, top + new_h))
-                
+
                 img.save(input_path)
         except Exception as e:
             print(f"Erreur lors du recadrage : {e}")
 
-    # Envoi au script de génération Kumiko
     try:
         cmd = [
             "python", "main_api.py",
             input_path, output_path, str(grid_width), str(grid_height),
             orientation, background_color, triangle_border_color, exclude_background, str(colors)
         ]
-        
+
         result = subprocess.run(cmd, capture_output=True, text=True)
-        
+
         if result.returncode != 0:
             print("Erreur du script:", result.stderr)
             return {"success": False, "error": "Erreur interne lors du traitement mathématique."}
 
-        return {"success": True, "file_url": f"/download/{output_filename}"}
+	# --- GESTION DU SUMMARY.SVG ---
+        # Le script main_api.py ajoute automatiquement "_summary" avant l'extension .svg
+        summary_filename = f"{base_name}_{timestamp}_summary.svg"
+        summary_dest_path = os.path.join(OUTPUT_DIR, summary_filename)
+        summary_url = None
+
+        # On vérifie juste si le fichier a bien été créé
+        if os.path.exists(summary_dest_path):
+            summary_url = f"/download/{summary_filename}"
+
+        return {
+            "success": True, 
+            "pattern_url": f"/download/{output_filename}",
+            "summary_url": summary_url
+        }
 
     except Exception as e:
         print("Erreur globale:", e)
