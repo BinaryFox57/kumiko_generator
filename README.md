@@ -2,6 +2,8 @@
 
 A modern and fluid web interface to transform your images into beautiful Kumiko patterns (traditional Japanese woodworking styles using geometric triangles and hexagons). This project is highly optimized to prepare models for 3D printing or laser cutting.
 
+This project is a customized and containerized standalone fork of the original repository by [hampusudd/kumiko_generator](https://github.com/hampusudd/kumiko_generator).
+
 ## Features
 
 - 1/3 - 2/3 Studio Layout: Fixed settings panel on the left, and a dynamic high-definition SVG live preview on the right.
